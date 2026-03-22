@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="lt.eimantas.dao.mybatis.ProduktasMapper">
+
+    <resultMap id="ProduktasResultMap" type="lt.eimantas.dao.mybatis.ProduktasModel">
+        <id property="id" column="id"/>
+        <result property="pavadinimas" column="pavadinimas"/>
+        <result property="kaina" column="kaina"/>
+        <result property="kategorijaId" column="kategorija_id"/>
+        <result property="kategorijaPavadinimas" column="kategorija_pavadinimas"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="ProduktasResultMap">
+        SELECT p.id, p.pavadinimas, p.kaina, p.kategorija_id,
+               k.pavadinimas AS kategorija_pavadinimas
+        FROM PRODUKTAS p
+        LEFT JOIN KATEGORIJA k ON p.kategorija_id = k.id
+    </select>
+
+    <insert id="insert" parameterType="lt.eimantas.dao.mybatis.ProduktasModel">
+        INSERT INTO PRODUKTAS (pavadinimas, kaina, kategorija_id)
+        VALUES (#{pavadinimas}, #{kaina}, #{kategorijaId})
+    </insert>
+
+</mapper>
