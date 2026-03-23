@@ -74,8 +74,8 @@ public class ParduotuveBean {
                 .collect(Collectors.joining(", "));
     }
 
-    public String issaugotiSandelį() {
-        service.issaugotiSandelį(naujasSandelis);
+    public String issaugotiSandelis() {
+        service.issaugotiSandelis(naujasSandelis);
         naujasSandelis = new Sandelis();
         return "sandeliai?faces-redirect=true";
     }

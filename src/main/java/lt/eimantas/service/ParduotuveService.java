@@ -57,7 +57,7 @@ public class ParduotuveService {
         return sandelisDAO.findAll();
     }
 
-    public void issaugotiSandelį(Sandelis s) {
+    public void issaugotiSandelis(Sandelis s) {
         sandelisDAO.save(s);
     }
 }
