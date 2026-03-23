@@ -9,7 +9,9 @@ import lt.eimantas.entity.Kategorija;
 import lt.eimantas.entity.Produktas;
 import lt.eimantas.entity.Sandelis;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequestScoped
 public class ParduotuveService {
@@ -33,6 +35,17 @@ public class ParduotuveService {
 
     public void issaugotiProdukta(Produktas p) {
         produktasDAO.save(p);
+    }
+
+    public List<Sandelis> getSandeliaiByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return ids.stream()
+                .map(sandelisDAO::findById)
+                .filter(s -> s != null)
+                .collect(Collectors.toList());
     }
 
     public void issaugotiKategorija(Kategorija k) {

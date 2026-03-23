@@ -25,4 +25,17 @@ public class Kategorija {
 
     public List<Produktas> getProduktai() { return produktai; }
     public void setProduktai(List<Produktas> produktai) { this.produktai = produktai; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Kategorija that = (Kategorija) o;
+        return id != null && id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }

@@ -26,6 +26,10 @@
             <f:facet name="header">Kategorija</f:facet>
             #{p.kategorija.pavadinimas}
         </h:column>
+        <h:column>
+            <f:facet name="header">Sandėliai</f:facet>
+            #{parduotuveBean.sandeliuTekstas(p)}
+        </h:column>
     </h:dataTable>
 
     <hr/>
@@ -40,11 +44,20 @@
 
             <h:outputLabel value="Kategorija:"/>
             <h:selectOneMenu value="#{parduotuveBean.naujasProduktas.kategorija}">
+                <f:converter converterId="kategorijaConverter"/>
                 <f:selectItems value="#{parduotuveBean.visiKategorijos}"
                                var="k"
                                itemValue="#{k}"
                                itemLabel="#{k.pavadinimas}"/>
             </h:selectOneMenu>
+
+            <h:outputLabel value="Sandėliai:"/>
+            <h:selectManyCheckbox value="#{parduotuveBean.pasirinktiSandeliuIds}">
+                <f:selectItems value="#{parduotuveBean.visiSandeliai}"
+                               var="s"
+                               itemValue="#{s.id}"
+                               itemLabel="#{s.pavadinimas} (#{s.adresas})"/>
+            </h:selectManyCheckbox>
         </h:panelGrid>
         <h:commandButton value="Išsaugoti" action="#{parduotuveBean.issaugotiProdukta}"/>
     </h:form>
