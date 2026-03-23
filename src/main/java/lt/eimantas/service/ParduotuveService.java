@@ -11,6 +11,7 @@ import lt.eimantas.entity.Sandelis;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RequestScoped
@@ -44,7 +45,7 @@ public class ParduotuveService {
 
         return ids.stream()
                 .map(sandelisDAO::findById)
-                .filter(s -> s != null)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
