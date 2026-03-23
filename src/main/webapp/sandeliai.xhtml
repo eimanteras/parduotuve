@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+<h:head>
+    <title>Sandeliai</title>
+</h:head>
+<h:body>
+    <h1>Sandėlių sąrašas</h1>
+
+    <h:dataTable value="#{parduotuveBean.visiSandeliai}" var="s" border="1">
+        <h:column>
+            <f:facet name="header">ID</f:facet>
+            #{s.id}
+        </h:column>
+        <h:column>
+            <f:facet name="header">Pavadinimas</f:facet>
+            #{s.pavadinimas}
+        </h:column>
+        <h:column>
+            <f:facet name="header">Adresas</f:facet>
+            #{s.adresas}
+        </h:column>
+    </h:dataTable>
+
+    <hr/>
+    <h2>Pridėti naują sandėlį</h2>
+    <h:form>
+        <h:panelGrid columns="2">
+            <h:outputLabel value="Pavadinimas:"/>
+            <h:inputText value="#{parduotuveBean.naujasSandelis.pavadinimas}"/>
+
+            <h:outputLabel value="Adresas:"/>
+            <h:inputText value="#{parduotuveBean.naujasSandelis.adresas}"/>
+        </h:panelGrid>
+        <h:commandButton value="Išsaugoti" action="#{parduotuveBean.issaugotiSandelį}"/>
+    </h:form>
+
+    <hr/>
+    <h:link value="Grįžti" outcome="index"/>
+</h:body>
+</html>
+

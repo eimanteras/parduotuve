@@ -4,5 +4,6 @@
 <configuration>
     <mappers>
         <mapper resource="mybatis/ProduktasMapper.xml"/>
+        <mapper resource="mybatis/SandelisMapper.xml"/>
     </mappers>
 </configuration>
