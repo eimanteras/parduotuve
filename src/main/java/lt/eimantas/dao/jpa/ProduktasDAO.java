@@ -15,7 +15,12 @@ public class ProduktasDAO {
     private EntityManager em;
 
     public List<Produktas> findAll() {
-        return em.createQuery("SELECT p FROM Produktas p", Produktas.class).getResultList();
+        return em.createQuery(
+                "SELECT DISTINCT p FROM Produktas p " +
+                        "LEFT JOIN FETCH p.kategorija " +
+                        "LEFT JOIN FETCH p.sandeliai",
+                Produktas.class
+        ).getResultList();
     }
 
     @Transactional

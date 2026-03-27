@@ -12,6 +12,7 @@ import lt.eimantas.entity.Sandelis;
 import lt.eimantas.service.ParduotuveService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Named
 @RequestScoped
@@ -30,10 +31,13 @@ public class ParduotuveBean {
     private Produktas naujasProduktas = new Produktas();
     private Kategorija naujaKategorija = new Kategorija();
     private Sandelis naujasSandelis = new Sandelis();
+    private List<Long> pasirinktiSandeliuIds;
 
     public String issaugotiProdukta() {
+        naujasProduktas.setSandeliai(service.getSandeliaiByIds(pasirinktiSandeliuIds));
         service.issaugotiProdukta(naujasProduktas);
         naujasProduktas = new Produktas();
+        pasirinktiSandeliuIds = null;
         return "produktai?faces-redirect=true";
     }
 
@@ -60,8 +64,18 @@ public class ParduotuveBean {
         return service.getVisiSandeliai();
     }
 
-    public String issaugotiSandelį() {
-        service.issaugotiSandelį(naujasSandelis);
+    public String sandeliuTekstas(Produktas produktas) {
+        if (produktas == null || produktas.getSandeliai() == null || produktas.getSandeliai().isEmpty()) {
+            return "-";
+        }
+
+        return produktas.getSandeliai().stream()
+                .map(Sandelis::getPavadinimas)
+                .collect(Collectors.joining(", "));
+    }
+
+    public String issaugotiSandelis() {
+        service.issaugotiSandelis(naujasSandelis);
         naujasSandelis = new Sandelis();
         return "sandeliai?faces-redirect=true";
     }
@@ -74,4 +88,7 @@ public class ParduotuveBean {
 
     public Sandelis getNaujasSandelis() { return naujasSandelis; }
     public void setNaujasSandelis(Sandelis naujasSandelis) { this.naujasSandelis = naujasSandelis; }
+
+    public List<Long> getPasirinktiSandeliuIds() { return pasirinktiSandeliuIds; }
+    public void setPasirinktiSandeliuIds(List<Long> pasirinktiSandeliuIds) { this.pasirinktiSandeliuIds = pasirinktiSandeliuIds; }
 }
