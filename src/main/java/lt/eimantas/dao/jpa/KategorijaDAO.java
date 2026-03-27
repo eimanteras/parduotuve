@@ -15,7 +15,14 @@ public class KategorijaDAO {
     private EntityManager em;
 
     public List<Kategorija> findAll() {
-        return em.createQuery("SELECT k FROM Kategorija k", Kategorija.class).getResultList();
+        return em.createQuery(
+                "SELECT DISTINCT k FROM Kategorija k LEFT JOIN FETCH k.produktai",
+                Kategorija.class
+        ).getResultList();
+    }
+
+    public Kategorija findById(Long id) {
+        return em.find(Kategorija.class, id);
     }
 
     @Transactional

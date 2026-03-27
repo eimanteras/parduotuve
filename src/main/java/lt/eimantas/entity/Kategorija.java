@@ -5,6 +5,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "KATEGORIJA")
+
 public class Kategorija {
 
     @Id
