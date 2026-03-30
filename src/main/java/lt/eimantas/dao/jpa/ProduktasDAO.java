@@ -28,6 +28,19 @@ public class ProduktasDAO {
         em.persist(p);
     }
 
+    @Transactional
+    public Produktas update(Produktas p) {
+        return em.merge(p);
+    }
+
+    public void flush() {
+        em.flush();
+    }
+
+    public void clear() {
+        em.clear();
+    }
+
     public Produktas findById(Long id) {
         return em.find(Produktas.class, id);
     }

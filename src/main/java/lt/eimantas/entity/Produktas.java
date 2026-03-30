@@ -30,6 +30,10 @@ public class Produktas {
     )
     private List<Sandelis> sandeliai;
 
+    @Version
+    @Column(name = "opt_lock_version", nullable = false)
+    private Long version;
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -44,6 +48,9 @@ public class Produktas {
 
     public List<Sandelis> getSandeliai() { return sandeliai; }
     public void setSandeliai(List<Sandelis> sandeliai) { this.sandeliai = sandeliai; }
+
+    public Long getVersion() { return version; }
+    public void setVersion(Long version) { this.version = version; }
 
     @Override
     public boolean equals(Object o) {

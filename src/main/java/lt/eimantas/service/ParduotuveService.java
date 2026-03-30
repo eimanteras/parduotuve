@@ -2,12 +2,15 @@ package lt.eimantas.service;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.OptimisticLockException;
+import jakarta.transaction.Transactional;
 import lt.eimantas.dao.jpa.KategorijaDAO;
 import lt.eimantas.dao.jpa.ProduktasDAO;
 import lt.eimantas.dao.jpa.SandelisDAO;
 import lt.eimantas.entity.Kategorija;
 import lt.eimantas.entity.Produktas;
 import lt.eimantas.entity.Sandelis;
+import lt.eimantas.rest.OptimisticConflictException;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +39,34 @@ public class ParduotuveService {
 
     public void issaugotiProdukta(Produktas p) {
         produktasDAO.save(p);
+    }
+
+    public Produktas getProduktasById(Long id) {
+        return produktasDAO.findById(id);
+    }
+
+    @Transactional
+    public Produktas sukurtiProdukta(Produktas p) {
+        produktasDAO.save(p);
+        produktasDAO.flush();
+        return p;
+    }
+
+    @Transactional
+    public Produktas atnaujintiProdukta(Produktas p) {
+        try {
+            Produktas atnaujintas = produktasDAO.update(p);
+            produktasDAO.flush();
+            return atnaujintas;
+        } catch (OptimisticLockException ex) {
+            // Po OptimisticLockException esamas persistence context laikomas nepatikimu.
+            produktasDAO.clear();
+            throw new OptimisticConflictException("Irasas buvo pakeistas kito naudotojo. Atnaujinkite duomenis ir bandykite dar karta.", ex);
+        }
+    }
+
+    public Kategorija getKategorijaById(Long id) {
+        return kategorijaDAO.findById(id);
     }
 
     public List<Sandelis> getSandeliaiByIds(List<Long> ids) {

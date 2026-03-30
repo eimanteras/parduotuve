@@ -4,4 +4,15 @@
        xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
        https://jakarta.ee/xml/ns/jakartaee/beans_3_0.xsd"
        bean-discovery-mode="all">
+    <alternatives>
+        <class>lt.eimantas.cdi.GreitasPristatymoService</class>
+    </alternatives>
+
+    <interceptors>
+        <class>lt.eimantas.cdi.AuditInterceptor</class>
+    </interceptors>
+
+    <decorators>
+        <class>lt.eimantas.cdi.SveikinimoDecorator</class>
+    </decorators>
 </beans>

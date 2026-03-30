@@ -2,6 +2,7 @@ package lt.eimantas.dao.mybatis;
 
 import java.math.BigDecimal;
 
+
 public class ProduktasModel {
     private Long id;
     private String pavadinimas;
