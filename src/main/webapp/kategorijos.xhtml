@@ -17,6 +17,11 @@
             <f:facet name="header">Pavadinimas</f:facet>
             #{k.pavadinimas}
         </h:column>
+        <h:column>
+            <f:facet name="header">Produktų skaičius</f:facet>
+            #{parduotuveBean.produktuKiekis(k)}
+        </h:column>
+
     </h:dataTable>
 
     <hr/>

@@ -38,6 +38,10 @@ public class ParduotuveService {
         produktasDAO.save(p);
     }
 
+    public int getProduktuKiekis(Kategorija kategorija) {
+        return kategorija.getProduktai().size();
+    }
+
     public List<Sandelis> getSandeliaiByIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
             return Collections.emptyList();

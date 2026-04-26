@@ -3,6 +3,7 @@ package lt.eimantas.web;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import lt.eimantas.dao.jpa.KategorijaDAO;
 import lt.eimantas.dao.mybatis.ProduktasMapper;
 import lt.eimantas.dao.mybatis.ProduktasModel;
 import lt.eimantas.dao.mybatis.SandelisMapper;
@@ -27,6 +28,10 @@ public class ParduotuveBean {
     @Inject
     private SandelisMapper sandelisMapper;
 
+    @Inject
+    private KategorijaDAO
+            kategorijaDAO;
+
     // Data binding objektai
     private Produktas naujasProduktas = new Produktas();
     private Kategorija naujaKategorija = new Kategorija();
@@ -47,6 +52,7 @@ public class ParduotuveBean {
         return "kategorijos?faces-redirect=true";
     }
 
+
     public List<Produktas> getVisiProduktai() {
         return service.getVisiProduktai();
     }
@@ -58,6 +64,17 @@ public class ParduotuveBean {
     // MyBatis produktai
     public List<ProduktasModel> getMyBatisProduktai() {
         return produktasMapper.findAll();
+    }
+
+    public int getProduktuKiekis(Kategorija k) {
+        return service.getProduktuKiekis(k);
+    }
+
+    public int produktuKiekis(Kategorija kategorija) {
+        if (kategorija == null || kategorija.getProduktai() == null) {
+            return 0;
+        }
+        return kategorija.getProduktai().size();
     }
 
     public List<Sandelis> getVisiSandeliai() {
