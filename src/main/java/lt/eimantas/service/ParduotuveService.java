@@ -58,8 +58,7 @@ public class ParduotuveService {
             Produktas atnaujintas = produktasDAO.update(p);
             produktasDAO.flush();
             return atnaujintas;
-        } catch (OptimisticLockException ex) {
-            // Po OptimisticLockException esamas persistence context laikomas nepatikimu.
+        } catch (OptimisticLockException  | jakarta.persistence.RollbackException ex) {
             produktasDAO.clear();
             throw new OptimisticConflictException("Irasas buvo pakeistas kito naudotojo. Atnaujinkite duomenis ir bandykite dar karta.", ex);
         }
