@@ -17,10 +17,6 @@ public class AsyncTaskService {
 
     private final Map<String, TaskState> tasks = new ConcurrentHashMap<>();
 
-    public String startLongTask(int sleepSeconds) {
-        String taskId = UUID.randomUUID().toString();
-        TaskState state = new TaskState("RUNNING", "Pradeta", Instant.now().toString(), null);
-        tasks.put(taskId, state);
 
         public String startLongTask(int sleepSeconds) {
         String taskId = UUID.randomUUID().toString();
