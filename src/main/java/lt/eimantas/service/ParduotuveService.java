@@ -4,6 +4,7 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.NotFoundException;
 import lt.eimantas.dao.jpa.KategorijaDAO;
 import lt.eimantas.dao.jpa.ProduktasDAO;
 import lt.eimantas.dao.jpa.SandelisDAO;
@@ -54,7 +55,16 @@ public class ParduotuveService {
 
     @Transactional
     public Produktas atnaujintiProdukta(Produktas p) {
+        // 1. Išankstinė patikra: ar produktas egzistuoja DB?
+        // Kadangi p.getId() grąžina ieškomo objekto ID, perduodame jį į DAO
+        Produktas egzistuojantis = produktasDAO.findById(p.getId());
+        if (egzistuojantis == null) {
+            // Jei nerasta, iškart metam NotFoundException (tai sugeneruos HTTP 404)
+            throw new NotFoundException("Nepavyko atnaujinti: produktas su ID " + p.getId() + " nerastas.");
+        }
+
         try {
+            // 2. Jei egzistuoja, tęsiame atnaujinimą ir optimistinio rakinimo patikrą
             Produktas atnaujintas = produktasDAO.update(p);
             produktasDAO.flush();
             return atnaujintas;
