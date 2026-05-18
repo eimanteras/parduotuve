@@ -3,7 +3,9 @@ package lt.eimantas.cdi;
 import jakarta.interceptor.AroundInvoke;
 import jakarta.interceptor.Interceptor;
 import jakarta.interceptor.InvocationContext;
+import jakarta.annotation.Priority;
 
+@Priority(Interceptor.Priority.APPLICATION + 10)
 @Audited
 @Interceptor
 public class AuditInterceptor {

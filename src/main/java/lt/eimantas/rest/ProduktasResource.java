@@ -1,9 +1,11 @@
 package lt.eimantas.rest;
 
 import jakarta.inject.Inject;
+import jakarta.validation.constraints.Max;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import lt.eimantas.cdi.MaxPriceCheck;
 import lt.eimantas.entity.Kategorija;
 import lt.eimantas.entity.Produktas;
 import lt.eimantas.service.ParduotuveService;
@@ -38,6 +40,7 @@ public class ProduktasResource {
     }
 
     @POST
+    @MaxPriceCheck // ← Tiesiog prirašai šią eilutę!
     public Response create(ProduktasDto dto) {
         Produktas p = new Produktas();
         p.setPavadinimas(dto.getPavadinimas());
