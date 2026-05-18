@@ -55,23 +55,23 @@ public class ParduotuveService {
 
     @Transactional
     public Produktas atnaujintiProdukta(Produktas p) {
-        // 1. Išankstinė patikra: ar produktas egzistuoja DB?
-        // Kadangi p.getId() grąžina ieškomo objekto ID, perduodame jį į DAO
-        Produktas egzistuojantis = produktasDAO.findById(p.getId());
-        if (egzistuojantis == null) {
-            // Jei nerasta, iškart metam NotFoundException (tai sugeneruos HTTP 404)
-            throw new NotFoundException("Nepavyko atnaujinti: produktas su ID " + p.getId() + " nerastas.");
-        }
-
         try {
-            // 2. Jei egzistuoja, tęsiame atnaujinimą ir optimistinio rakinimo patikrą
             Produktas atnaujintas = produktasDAO.update(p);
-            produktasDAO.flush();
+            // Įsivaizduokime, kad dėstytojas liepė ištrinti arba užkomentuoti šią eilutę:
+            // produktasDAO.flush(); 
             return atnaujintas;
-        } catch (OptimisticLockException ex) {
-            // Po OptimisticLockException esamas persistence context laikomas nepatikimu.
+        } 
+        // PATAISYTA: Pridedame jakarta.persistence.RollbackException gaudymą per „Multi-catch“ (|)
+        catch (OptimisticLockException | jakarta.persistence.RollbackException ex) {
+            
+            // Žurnalizuojame, kad matytume, kas tiksliai atėjo
+            System.out.println("<<< [TRANSAKCIJA] Pagaute konfliktą! Išimties tipas: " + ex.getClass().getName());
+            
+            // Po konflikto išvalome persistence context
             produktasDAO.clear();
-            throw new OptimisticConflictException("Irasas buvo pakeistas kito naudotojo. Atnaujinkite duomenis ir bandykite dar karta.", ex);
+            
+            // Metame tavo suprogramuotą klaidą, kurią REST ExceptionMapperis pavers į HTTP 409
+            throw new OptimisticConflictException("Irašas buvo pakeistas kito naudotojo. Atnaujinkite duomenis.", ex);
         }
     }
 
