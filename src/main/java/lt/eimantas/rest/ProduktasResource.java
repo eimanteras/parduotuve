@@ -4,11 +4,13 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import lt.eimantas.cdi.MaxPriceCheck;
 import lt.eimantas.entity.Kategorija;
 import lt.eimantas.entity.Produktas;
 import lt.eimantas.service.ParduotuveService;
 
 import java.net.URI;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,13 +20,26 @@ import java.util.stream.Collectors;
 public class ProduktasResource {
 
     @Inject
-    private ParduotuveService service;
+    private ParduotuveService service; // Tavo kintamojo vardas yra 'service'
 
     @GET
-    public List<ProduktasDto> getAll() {
-        return service.getVisiProduktai().stream()
+    public Response getAll(@QueryParam("maxKaina") BigDecimal maxKaina) {
+        // PATAISYTA: Vietoj parduotuveService dabar naudojame service
+        List<Produktas> produktai = service.getVisiProduktai();
+        
+        // Jei klientas nurodė maxKaina parametrą, išfiltruojame sąrašą
+        if (maxKaina != null) {
+            produktai = produktai.stream()
+                    .filter(p -> p.getKaina() != null && p.getKaina().compareTo(maxKaina) <= 0)
+                    .collect(Collectors.toList());
+        }
+        
+        // Konvertuojame likusius produktus į DTO ir grąžiname 200 OK
+        List<ProduktasDto> dtoList = produktai.stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
+                
+        return Response.ok(dtoList).build();
     }
 
     @GET
@@ -38,6 +53,7 @@ public class ProduktasResource {
     }
 
     @POST
+    @MaxPriceCheck
     public Response create(ProduktasDto dto) {
         Produktas p = new Produktas();
         p.setPavadinimas(dto.getPavadinimas());
@@ -100,4 +116,3 @@ public class ProduktasResource {
         return dto;
     }
 }
-
