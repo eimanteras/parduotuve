@@ -46,14 +46,7 @@ public class ParduotuveService {
     }
 
     public List<Produktas> getProduktaiByIds(List<Long> ids) {
-        if (ids == null || ids.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return ids.stream()
-                .map(produktasDAO::findById)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+        return produktasDAO.findByIds(ids);
     }
 
     @Transactional

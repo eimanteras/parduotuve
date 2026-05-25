@@ -44,4 +44,13 @@ public class ProduktasDAO {
     public Produktas findById(Long id) {
         return em.find(Produktas.class, id);
     }
+
+    public List<Produktas> findByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return java.util.Collections.emptyList();
+        }
+        return em.createQuery("SELECT p FROM Produktas p WHERE p.id IN :ids", Produktas.class)
+                .setParameter("ids", ids)
+                .getResultList();
+    }
 }
