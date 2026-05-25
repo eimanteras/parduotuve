@@ -12,6 +12,7 @@ import lt.eimantas.service.ParduotuveService;
 import java.net.URI;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Path("/produktai")
@@ -80,29 +81,35 @@ public class ProduktasResource {
             throw new BadRequestException("PUT uzklausai privalomas version laukas");
         }
 
+        // 1. Surandame TIKRĄJĮ objektą iš DB. Jis automatiškai tampa MANAGED.
         Produktas existing = service.getProduktasById(id);
         if (existing == null) {
             throw new NotFoundException("Produktas nerastas");
         }
 
-        Produktas toUpdate = new Produktas();
-        toUpdate.setId(id);
-        toUpdate.setVersion(dto.getVersion());
-        toUpdate.setPavadinimas(dto.getPavadinimas());
-        toUpdate.setKaina(dto.getKaina());
-        toUpdate.setSandeliai(existing.getSandeliai());
+        // 2. [KRITIŠKA VIETA] Rankiniu būdu patikriname, ar kliento atsiųsta versija 
+        // sutampa su esama DB versija dar PRIEŠ keičiant duomenis.
+        if (!Objects.equals(existing.getVersion(), dto.getVersion())) {
+            throw new OptimisticConflictException("Irasas buvo pakeistas kito naudotojo. Atnaujinkite duomenis ir bandykite dar karta.");
+        }
+
+        // 3. Modifikuojame TIKRĄJĮ managed objektą. Versijos lauko (setVersion) NELIEČIAME!
+        existing.setPavadinimas(dto.getPavadinimas());
+        existing.setKaina(dto.getKaina());
 
         if (dto.getKategorijaId() != null) {
             Kategorija kategorija = service.getKategorijaById(dto.getKategorijaId());
             if (kategorija == null) {
                 throw new BadRequestException("Nurodyta kategorija neegzistuoja");
             }
-            toUpdate.setKategorija(kategorija);
+            existing.setKategorija(kategorija);
         } else {
-            toUpdate.setKategorija(null);
+            existing.setKategorija(null);
         }
 
-        Produktas updated = service.atnaujintiProdukta(toUpdate);
+        // 4. Atiduodame atnaujinti. Servise em.merge(existing) tiesiog pratęs darbą,
+        // o em.flush() sėkmingai įvykdys automatinį Hibernate tikrinimą.
+        Produktas updated = service.atnaujintiProdukta(existing);
         return toDto(updated);
     }
 
