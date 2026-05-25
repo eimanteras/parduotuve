@@ -4,6 +4,7 @@ import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
 import lt.eimantas.cdi.KursuZemelapis;
 import lt.eimantas.entity.Produktas;
+import lt.eimantas.service.MokejimoServisas;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
