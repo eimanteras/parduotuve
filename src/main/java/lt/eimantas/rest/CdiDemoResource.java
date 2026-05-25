@@ -5,6 +5,8 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lt.eimantas.cdi.PVMService;
+import lt.eimantas.cdi.PristatymoService;
+import lt.eimantas.cdi.PristatymoTipas;
 import lt.eimantas.cdi.SkaiciavimoService;
 
 import java.math.BigDecimal;
@@ -20,6 +22,14 @@ public class CdiDemoResource {
 
     @Inject
     private SkaiciavimoService discountService; 
+
+    @Inject
+    @PristatymoTipas.Standartinis
+    private PristatymoService standartinisPristatymas;
+
+    @Inject
+    @PristatymoTipas.Greitas
+    private PristatymoService greitasPristatymas;
 
     @GET
     @Path("/test")
@@ -40,6 +50,23 @@ public class CdiDemoResource {
             "after_vat_decorator_21_percent", priceWithTax,
             "global_discount_applied", systemDiscount,
             "total_checkout_amount", finalPrice
+        )).build();
+    }
+
+    @GET
+    @Path("/pristatymas")
+    public Response gautiPristatymoOpcijas() {
+        return Response.ok(Map.of(
+            "options", Map.of(
+                "standard", Map.of(
+                    "code", standartinisPristatymas.getDeliveryType(),
+                    "price", standartinisPristatymas.getDeliveryPrice()
+                ),
+                "express", Map.of(
+                    "code", greitasPristatymas.getDeliveryType(),
+                    "price", greitasPristatymas.getDeliveryPrice()
+                )
+            )
         )).build();
     }
 }

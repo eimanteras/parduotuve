@@ -1,6 +1,8 @@
 package lt.eimantas.cdi;
 
-public interface PristatymoService {
-    String tipas();
-}
+import java.math.BigDecimal;
 
+public interface PristatymoService {
+    BigDecimal getDeliveryPrice();
+    String getDeliveryType();
+}
