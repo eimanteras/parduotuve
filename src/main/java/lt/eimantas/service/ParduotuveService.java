@@ -46,6 +46,21 @@ public class ParduotuveService {
         return produktasDAO.findById(id);
     }
 
+    public List<Produktas> getProduktaiByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        var produktaiById = produktasDAO.findByIds(ids).stream()
+            .collect(Collectors.toMap(Produktas::getId, produktas -> produktas));
+
+        return ids.stream()
+            .map(produktaiById::get)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+    }
+    
+
     @Transactional
     public Produktas sukurtiProdukta(Produktas p) {
         produktasDAO.save(p);
@@ -68,7 +83,7 @@ public class ParduotuveService {
             Produktas atnaujintas = produktasDAO.update(p);
             produktasDAO.flush();
             return atnaujintas;
-        } catch (OptimisticLockException ex) {
+        } catch (OptimisticLockException | jakarta.persistence.RollbackException ex) {
             // Po OptimisticLockException esamas persistence context laikomas nepatikimu.
             produktasDAO.clear();
             throw new OptimisticConflictException("Irasas buvo pakeistas kito naudotojo. Atnaujinkite duomenis ir bandykite dar karta.", ex);
