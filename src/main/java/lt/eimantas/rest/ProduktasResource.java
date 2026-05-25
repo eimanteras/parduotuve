@@ -1,6 +1,7 @@
 package lt.eimantas.rest;
 
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -38,7 +39,7 @@ public class ProduktasResource {
     }
 
     @POST
-    public Response create(ProduktasDto dto) {
+    public Response create(@Valid ProduktasDto dto) {
         Produktas p = new Produktas();
         p.setPavadinimas(dto.getPavadinimas());
         p.setKaina(dto.getKaina());
@@ -59,7 +60,7 @@ public class ProduktasResource {
 
     @PUT
     @Path("/{id}")
-    public ProduktasDto update(@PathParam("id") Long id, ProduktasDto dto) {
+    public ProduktasDto update(@PathParam("id") Long id, @Valid ProduktasDto dto) {
         if (dto.getVersion() == null) {
             throw new BadRequestException("PUT uzklausai privalomas version laukas");
         }
@@ -100,4 +101,3 @@ public class ProduktasResource {
         return dto;
     }
 }
-
