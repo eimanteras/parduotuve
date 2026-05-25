@@ -2,7 +2,6 @@ package lt.eimantas.rest;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HeaderParam;
@@ -53,7 +52,7 @@ public class KrepselisResource {
         krepselisService.pridetiProdukta(id);
         return Response.ok(Map.of(
                 "message", produktas.getPavadinimas() + " pridėtas į krepšelį",
-                "prekiuKiekis", krepselisService.getProduktai().size()
+                "prekiuKiekis", krepselisService.getPrekiuKiekis()
         )).build();
     }
 
