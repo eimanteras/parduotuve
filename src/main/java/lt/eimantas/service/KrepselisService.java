@@ -20,10 +20,10 @@ public class KrepselisService implements Serializable {
     private final List<Long> produktuIdKrepselyje = new ArrayList<>();
 
     @Inject
-    private transient ParduotuveService parduotuveService;
+    private ParduotuveService parduotuveService;
 
     @Inject
-    private transient MokejimoServisas mokejimoServisas;
+    private MokejimoServisas mokejimoServisas;
 
     public void pridetiProdukta(Long produktoId) {
         if (produktoId == null) {
