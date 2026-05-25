@@ -3,6 +3,7 @@ package lt.eimantas.service;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.OptimisticLockException;
+import jakarta.persistence.RollbackException;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 import lt.eimantas.dao.jpa.KategorijaDAO;
@@ -46,6 +47,17 @@ public class ParduotuveService {
         return produktasDAO.findById(id);
     }
 
+    public List<Produktas> getProduktaiByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return ids.stream()
+                .map(produktasDAO::findById)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public Produktas sukurtiProdukta(Produktas p) {
         produktasDAO.save(p);
@@ -68,8 +80,8 @@ public class ParduotuveService {
             Produktas atnaujintas = produktasDAO.update(p);
             produktasDAO.flush();
             return atnaujintas;
-        } catch (OptimisticLockException ex) {
-            // Po OptimisticLockException esamas persistence context laikomas nepatikimu.
+        } catch (OptimisticLockException | RollbackException ex) {
+            // Po OptimisticLockException arba RollbackException esamas persistence context laikomas nepatikimu.
             produktasDAO.clear();
             throw new OptimisticConflictException("Irasas buvo pakeistas kito naudotojo. Atnaujinkite duomenis ir bandykite dar karta.", ex);
         }

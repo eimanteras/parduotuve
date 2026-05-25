@@ -6,6 +6,7 @@
        bean-discovery-mode="all">
     <alternatives>
         <class>lt.eimantas.cdi.GreitasPristatymoService</class>
+        <class>lt.eimantas.service.SebMokejimas</class>
     </alternatives>
 
     <interceptors>
