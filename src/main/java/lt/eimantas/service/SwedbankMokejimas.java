@@ -1,9 +1,11 @@
 package lt.eimantas.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Alternative;
 
 import java.math.BigDecimal;
 
+@Alternative
 @ApplicationScoped
 public class SwedbankMokejimas implements MokejimoServisas {
 
