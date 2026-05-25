@@ -6,6 +6,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lt.eimantas.entity.Produktas;
 
+import java.util.Collections;
 import java.util.List;
 
 @RequestScoped
@@ -43,5 +44,20 @@ public class ProduktasDAO {
 
     public Produktas findById(Long id) {
         return em.find(Produktas.class, id);
+    }
+
+    public List<Produktas> findByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return em.createQuery(
+                "SELECT DISTINCT p FROM Produktas p " +
+                        "LEFT JOIN FETCH p.kategorija " +
+                        "LEFT JOIN FETCH p.sandeliai " +
+                        "WHERE p.id IN :ids",
+                Produktas.class
+        ).setParameter("ids", ids)
+                .getResultList();
     }
 }

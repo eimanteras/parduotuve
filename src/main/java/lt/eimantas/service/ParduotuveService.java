@@ -50,10 +50,13 @@ public class ParduotuveService {
             return Collections.emptyList();
         }
 
+        var produktaiById = produktasDAO.findByIds(ids).stream()
+            .collect(Collectors.toMap(Produktas::getId, produktas -> produktas));
+
         return ids.stream()
-                .map(produktasDAO::findById)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+            .map(produktaiById::get)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
     }
 
     @Transactional
