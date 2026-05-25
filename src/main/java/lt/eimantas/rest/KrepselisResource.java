@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Path("/krepselis")
 @Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class KrepselisResource {
 
     @Inject
@@ -42,6 +43,13 @@ public class KrepselisResource {
         return dto;
     }
 
+    @GET
+    @Path("/laikas")
+    public Response gautiKrepselioLaika() {
+        String statusas = krepselisService.getLikoLaiko();
+        return Response.ok(Map.of("timer", statusas)).build();
+    }
+
     @POST
     @Path("/prideti/{id}")
     public Response prideti(@PathParam("id") Long id) {
@@ -53,7 +61,7 @@ public class KrepselisResource {
         krepselisService.pridetiProdukta(id);
         return Response.ok(Map.of(
                 "message", produktas.getPavadinimas() + " pridėtas į krepšelį",
-                "prekiuKiekis", krepselisService.getProduktai().size()
+                "prekiuKiekis", krepselisService.getPrekiuKiekis()
         )).build();
     }
 

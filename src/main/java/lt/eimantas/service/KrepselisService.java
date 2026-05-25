@@ -8,8 +8,9 @@ import lt.eimantas.entity.Produktas;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -20,6 +21,9 @@ public class KrepselisService implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final List<Long> produktuIdKrepselyje = new ArrayList<>();
+    
+    // Rezervacijos pabaigos laiko kintamasis
+    private LocalDateTime krepselioPabaigosLaikas;
 
     @Inject
     private ParduotuveService parduotuveService;
@@ -27,7 +31,6 @@ public class KrepselisService implements Serializable {
     @Inject
     private MokejimoServisas mokejimoServisas;
 
-    // Pakeitimas: Įšvirkščiame dinaminį kursų žemėlapį iš mūsų CDI Producerio naudojant Qualifier
     @Inject
     @KursuZemelapis
     private Map<String, BigDecimal> valiutuKursai;
@@ -36,14 +39,49 @@ public class KrepselisService implements Serializable {
         if (produktoId == null) {
             throw new IllegalArgumentException("Produkto ID negali būti null");
         }
+        
+        // Prieš įdedant naują prekę, patikriname, ar senasis krepšelis jau neišsivalė fone
+        tikrintiArLaikasNepasibaige();
+
         produktuIdKrepselyje.add(produktoId);
+        
+        // TIMER RESET: Kiekvieną kartą sėkmingai pridėjus prekę, nustatome naujas 15 minučių
+        this.krepselioPabaigosLaikas = LocalDateTime.now().plusMinutes(15);
+    }
+
+    public String getLikoLaiko() {
+        tikrintiArLaikasNepasibaige();
+
+        if (produktuIdKrepselyje.isEmpty() || krepselioPabaigosLaikas == null) {
+            return "Krepšelis tuščias, laikmatis neaktyvus.";
+        }
+
+        Duration duration = Duration.between(LocalDateTime.now(), krepselioPabaigosLaikas);
+        
+        if (duration.isNegative() || duration.isZero()) {
+            return "Krepšelio laikas pasibaigė!";
+        }
+
+        long minutes = duration.toMinutes();
+        long seconds = duration.minusMinutes(minutes).getSeconds();
+
+        return String.format("Iki krepšelio rezervacijos pabaigos liko: %d min. %d sek.", minutes, seconds);
+    }
+
+    private void tikrintiArLaikasNepasibaige() {
+        if (krepselioPabaigosLaikas != null && LocalDateTime.now().isAfter(krepselioPabaigosLaikas)) {
+            produktuIdKrepselyje.clear();
+            krepselioPabaigosLaikas = null; 
+        }
     }
 
     public List<Produktas> getProduktai() {
+        tikrintiArLaikasNepasibaige();
         return parduotuveService.getProduktaiByIds(produktuIdKrepselyje);
     }
 
     public int getPrekiuKiekis() {
+        tikrintiArLaikasNepasibaige();
         return produktuIdKrepselyje.size();
     }
 
@@ -55,8 +93,10 @@ public class KrepselisService implements Serializable {
     }
 
     public BigDecimal pirkti(String valiuta) {
+        tikrintiArLaikasNepasibaige();
+        
         if (produktuIdKrepselyje.isEmpty()) {
-            throw new IllegalStateException("Krepšelis tuščias!");
+            throw new IllegalStateException("Krepšelis tuščias arba laikas pasibaigė!");
         }
 
         String parinktaValiuta = (valiuta == null || valiuta.isBlank())
@@ -67,15 +107,19 @@ public class KrepselisService implements Serializable {
         BigDecimal galutineSuma = konvertuotiSuma(sumaEur, parinktaValiuta);
 
         mokejimoServisas.apmoketi(galutineSuma, parinktaValiuta);
+        
+        // Po sėkmingo pirkimo viską išvalome
         produktuIdKrepselyje.clear();
+        this.krepselioPabaigosLaikas = null; 
+        
         return galutineSuma;
     }
 
     public void isvalyti() {
         produktuIdKrepselyje.clear();
+        this.krepselioPabaigosLaikas = null;
     }
 
-    // Pakeitimas: Visiškai išmesta switch-case logika. Kursai skaitomi dinamiškai iš CDI
     private BigDecimal konvertuotiSuma(BigDecimal sumaEur, String valiuta) {
         if (valiutuKursai == null || !valiutuKursai.containsKey(valiuta)) {
             throw new IllegalArgumentException("Nepalaikoma valiuta: " + valiuta);
