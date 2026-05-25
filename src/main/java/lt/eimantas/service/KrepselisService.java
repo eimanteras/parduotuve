@@ -33,9 +33,6 @@ public class KrepselisService implements Serializable {
     }
 
     public List<Produktas> getProduktai() {
-        if (parduotuveService == null) {
-            return Collections.emptyList();
-        }
         return parduotuveService.getProduktaiByIds(produktuIdKrepselyje);
     }
 
@@ -57,10 +54,6 @@ public class KrepselisService implements Serializable {
 
         BigDecimal sumaEur = skaiciuotiBendraSumaEur();
         BigDecimal galutineSuma = konvertuotiSuma(sumaEur, parinktaValiuta);
-
-        if (mokejimoServisas == null) {
-            throw new IllegalStateException("Mokėjimo servisas neinicijuotas");
-        }
 
         mokejimoServisas.apmoketi(galutineSuma, parinktaValiuta);
         produktuIdKrepselyje.clear();

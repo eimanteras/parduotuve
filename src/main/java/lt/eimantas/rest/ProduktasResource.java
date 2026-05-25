@@ -10,6 +10,7 @@ import lt.eimantas.service.ParduotuveService;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Path("/produktai")
@@ -72,9 +73,8 @@ public class ProduktasResource {
 
         // 2. [KRITIŠKA VIETA] Rankiniu būdu patikriname, ar kliento atsiųsta versija 
         // sutampa su esama DB versija dar PRIEŠ keičiant duomenis.
-        if (!existing.getVersion().equals(dto.getVersion())) {
-            // Iškart metam optimistinio rakinimo klaidą, nes versijos NESUTAMPA!
-            throw new jakarta.persistence.OptimisticLockException("Duomenys paseno.");
+        if (!Objects.equals(existing.getVersion(), dto.getVersion())) {
+            throw new OptimisticConflictException("Irasas buvo pakeistas kito naudotojo. Atnaujinkite duomenis ir bandykite dar karta.");
         }
 
         // 3. Modifikuojame TIKRĄJĮ managed objektą. Versijos lauko (setVersion) NELIEČIAME!
