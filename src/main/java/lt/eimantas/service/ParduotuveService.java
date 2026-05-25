@@ -45,6 +45,17 @@ public class ParduotuveService {
         return produktasDAO.findById(id);
     }
 
+    public List<Produktas> getProduktaiByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return ids.stream()
+                .map(produktasDAO::findById)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public Produktas sukurtiProdukta(Produktas p) {
         produktasDAO.save(p);
