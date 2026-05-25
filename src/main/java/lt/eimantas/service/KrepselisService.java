@@ -2,6 +2,7 @@ package lt.eimantas.service;
 
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
+import lt.eimantas.cdi.KursuZemelapis;
 import lt.eimantas.entity.Produktas;
 
 import java.io.Serializable;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 @SessionScoped
 public class KrepselisService implements Serializable {
@@ -20,10 +22,15 @@ public class KrepselisService implements Serializable {
     private final List<Long> produktuIdKrepselyje = new ArrayList<>();
 
     @Inject
-    private transient ParduotuveService parduotuveService;
+    private ParduotuveService parduotuveService;
 
     @Inject
-    private transient MokejimoServisas mokejimoServisas;
+    private MokejimoServisas mokejimoServisas;
+
+    // Pakeitimas: Įšvirkščiame dinaminį kursų žemėlapį iš mūsų CDI Producerio naudojant Qualifier
+    @Inject
+    @KursuZemelapis
+    private Map<String, BigDecimal> valiutuKursai;
 
     public void pridetiProdukta(Long produktoId) {
         if (produktoId == null) {
@@ -34,6 +41,10 @@ public class KrepselisService implements Serializable {
 
     public List<Produktas> getProduktai() {
         return parduotuveService.getProduktaiByIds(produktuIdKrepselyje);
+    }
+
+    public int getPrekiuKiekis() {
+        return produktuIdKrepselyje.size();
     }
 
     public BigDecimal skaiciuotiBendraSumaEur() {
@@ -64,16 +75,13 @@ public class KrepselisService implements Serializable {
         produktuIdKrepselyje.clear();
     }
 
+    // Pakeitimas: Visiškai išmesta switch-case logika. Kursai skaitomi dinamiškai iš CDI
     private BigDecimal konvertuotiSuma(BigDecimal sumaEur, String valiuta) {
-        switch (valiuta) {
-            case "USD":
-                return sumaEur.multiply(new BigDecimal("1.10")).setScale(2, RoundingMode.HALF_UP);
-            case "UAH":
-                return sumaEur.multiply(new BigDecimal("43.00")).setScale(2, RoundingMode.HALF_UP);
-            case "EUR":
-                return sumaEur.setScale(2, RoundingMode.HALF_UP);
-            default:
-                throw new IllegalArgumentException("Nepalaikoma valiuta: " + valiuta);
+        if (valiutuKursai == null || !valiutuKursai.containsKey(valiuta)) {
+            throw new IllegalArgumentException("Nepalaikoma valiuta: " + valiuta);
         }
+
+        BigDecimal kursas = valiutuKursai.get(valiuta);
+        return sumaEur.multiply(kursas).setScale(2, RoundingMode.HALF_UP);
     }
 }
