@@ -1,36 +1,45 @@
 package lt.eimantas.rest;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import lt.eimantas.cdi.PristatymoService;
+import jakarta.ws.rs.core.Response;
+import lt.eimantas.cdi.PVMService;
 import lt.eimantas.cdi.SkaiciavimoService;
-import lt.eimantas.cdi.SveikinimoService;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 @Path("/cdi")
 @Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class CdiDemoResource {
 
     @Inject
-    private PristatymoService pristatymoService;
+    private PVMService pvmService; 
 
     @Inject
-    private SkaiciavimoService skaiciavimoService;
-
-    @Inject
-    private SveikinimoService sveikinimoService;
+    private SkaiciavimoService discountService; 
 
     @GET
-    public Map<String, String> demo() {
-        return Map.of(
-                "alternative", pristatymoService.tipas(),
-                "specialization", skaiciavimoService.versija(),
-                "interceptorDecorator", sveikinimoService.suformuoti("Eimantas")
-        );
+    @Path("/test")
+    public Response testCdiArchitecture() {
+        BigDecimal baseCartPrice = new BigDecimal("100.00");
+        
+        // 1. Skaičiuojame kainą (PVMDecorator uždės 21% PVM, AuditInterceptor pamatuos greitį)
+        BigDecimal priceWithTax = pvmService.calculatePrice(baseCartPrice);
+        
+        // 2. Paimame nuolaidos koeficientą (Specializes grąžins 0.90)
+        double systemDiscount = discountService.getDiscount();
+        
+        BigDecimal finalPrice = priceWithTax.multiply(BigDecimal.valueOf(systemDiscount))
+                .setScale(2, java.math.RoundingMode.HALF_UP);
+
+        return Response.ok(Map.of(
+            "original_price_eur", baseCartPrice,
+            "after_vat_decorator_21_percent", priceWithTax,
+            "global_discount_applied", systemDiscount,
+            "total_checkout_amount", finalPrice
+        )).build();
     }
 }
-

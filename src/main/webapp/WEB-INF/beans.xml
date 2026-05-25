@@ -14,6 +14,6 @@
     </interceptors>
 
     <decorators>
-        <class>lt.eimantas.cdi.SveikinimoDecorator</class>
+        <class>lt.eimantas.cdi.PVMDecorator</class>
     </decorators>
 </beans>

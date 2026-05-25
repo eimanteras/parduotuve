@@ -1,15 +1,14 @@
 package lt.eimantas.cdi;
 
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Specializes;
+import jakarta.enterprise.context.Dependent;
 
+@Dependent
 @Specializes
-@ApplicationScoped
 public class SpecializuotasSkaiciavimoService extends SkaiciavimoService {
 
     @Override
-    public String versija() {
-        return "SPECIALIZED";
+    public double getDiscount() {
+        return 0.90;
     }
 }
-

@@ -1,12 +1,10 @@
 package lt.eimantas.cdi;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
 
-@ApplicationScoped
+@Dependent
 public class SkaiciavimoService {
-
-    public String versija() {
-        return "BAZINIS";
+    public double getDiscount() {
+        return 1.0;
     }
 }
-
