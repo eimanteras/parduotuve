@@ -1,10 +1,17 @@
 package lt.eimantas.rest;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
+
 import java.math.BigDecimal;
 
 public class ProduktasDto {
     private Long id;
+    @NotBlank(message = "Pavadinimas negali būti tuščias")
     private String pavadinimas;
+    @NotNull(message = "Kaina yra privaloma")
+    @PositiveOrZero(message = "Kaina negali būti neigiama")
     private BigDecimal kaina;
     private Long kategorijaId;
     private Long version;
@@ -49,4 +56,3 @@ public class ProduktasDto {
         this.version = version;
     }
 }
-
