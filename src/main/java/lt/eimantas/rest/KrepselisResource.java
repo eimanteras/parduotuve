@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 
 @Path("/krepselis")
 @Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
 public class KrepselisResource {
 
     @Inject
