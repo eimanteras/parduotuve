@@ -2,17 +2,15 @@ package lt.eimantas.service;
 
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
-import lt.eimantas.cdi.KursuZemelapis;
 import lt.eimantas.entity.Produktas;
-import lt.eimantas.service.MokejimoServisas;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 @SessionScoped
 public class KrepselisService implements Serializable {
@@ -22,14 +20,10 @@ public class KrepselisService implements Serializable {
     private final List<Long> produktuIdKrepselyje = new ArrayList<>();
 
     @Inject
-    private ParduotuveService parduotuveService;
+    private transient ParduotuveService parduotuveService;
 
     @Inject
-    private MokejimoServisas mokejimoServisas;
-
-    @Inject
-    @KursuZemelapis
-    private Map<String, BigDecimal> valiutuKursai;
+    private transient MokejimoServisas mokejimoServisas;
 
     public void pridetiProdukta(Long produktoId) {
         if (produktoId == null) {
@@ -39,9 +33,6 @@ public class KrepselisService implements Serializable {
     }
 
     public List<Produktas> getProduktai() {
-        if (parduotuveService == null) {
-            return Collections.emptyList();
-        }
         return parduotuveService.getProduktaiByIds(produktuIdKrepselyje);
     }
 
@@ -64,10 +55,6 @@ public class KrepselisService implements Serializable {
         BigDecimal sumaEur = skaiciuotiBendraSumaEur();
         BigDecimal galutineSuma = konvertuotiSuma(sumaEur, parinktaValiuta);
 
-        if (mokejimoServisas == null) {
-            throw new IllegalStateException("Mokėjimo servisas neinicijuotas");
-        }
-
         mokejimoServisas.apmoketi(galutineSuma, parinktaValiuta);
         produktuIdKrepselyje.clear();
         return galutineSuma;
@@ -77,16 +64,16 @@ public class KrepselisService implements Serializable {
         produktuIdKrepselyje.clear();
     }
 
-    public int getPrekiuKiekis() {
-        return produktuIdKrepselyje.size();
-    }
-
     private BigDecimal konvertuotiSuma(BigDecimal sumaEur, String valiuta) {
-        if (valiutuKursai == null || !valiutuKursai.containsKey(valiuta)) {
-            throw new IllegalArgumentException("Nepalaikoma valiuta: " + valiuta);
+        switch (valiuta) {
+            case "USD":
+                return sumaEur.multiply(new BigDecimal("1.10")).setScale(2, RoundingMode.HALF_UP);
+            case "UAH":
+                return sumaEur.multiply(new BigDecimal("43.00")).setScale(2, RoundingMode.HALF_UP);
+            case "EUR":
+                return sumaEur.setScale(2, RoundingMode.HALF_UP);
+            default:
+                throw new IllegalArgumentException("Nepalaikoma valiuta: " + valiuta);
         }
-
-        BigDecimal kursas = valiutuKursai.get(valiuta);
-        return sumaEur.multiply(kursas).setScale(2, java.math.RoundingMode.HALF_UP);
     }
 }
