@@ -33,5 +33,17 @@ public class AsyncResource {
         }
         return state;
     }
-}
 
+    @DELETE
+    @Path("/tasks/{taskId}")
+    public Response cancelTask(@PathParam("taskId") String taskId) {
+        boolean cancelled = asyncTaskService.cancelTask(taskId);
+        if (!cancelled) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", "TASK_NOT_FOUND",
+                                   "message", "Užduotis nerasta arba jau pabaigta"))
+                    .build();
+        }
+        return Response.ok(Map.of("taskId", taskId, "status", "CANCELLED")).build();
+    }
+}
